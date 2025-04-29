@@ -22,29 +22,42 @@ This script automates the deployment of an Apigee API proxy designed to interact
 
 ## Prerequisites
 
-1.  **Google Cloud SDK (`gcloud`)**: Ensure `gcloud` is installed and authenticated with appropriate permissions.
+1.  **Google Cloud SDK (`gcloud`)**: Ensure `gcloud` is installed and authenticated. The script uses `gcloud` to:
+    * Obtain an access token for API calls (`gcloud auth print-access-token`).
+    * Manage Pub/Sub resources (topics, subscriptions).
+    * Manage IAM Service Accounts.
+    * (Optionally) Publish a test message to Pub/Sub.
     * Installation: [Google Cloud SDK Documentation](https://cloud.google.com/sdk/docs/install)
 2.  **`jq`**: A lightweight and flexible command-line JSON processor.
     * Installation: [jq Official Website](https://stedolan.github.io/jq/download/)
     * Example: `sudo apt-get install jq` (Debian/Ubuntu), `brew install jq` (macOS)
 3.  **`zip` utility**: Commonly pre-installed on most Linux and macOS systems.
-4.  **Project Structure**: The script expects the following directory structure from the root of this repository (`apigee-pub-sub`):
+4.  **Project Structure**: The script expects the following directory structure from the root of this repository (where `util.sh` is located):
     ```
-    apigee-pub-sub/
-    ├── apigee/
-    │   └── apiproxy/  # Contains your Apigee proxy source files
-    │       ├── proxies/
-    │       │   └── default.xml  # Expected to contain <BasePath>
-    │       ├── policies/
-    │       ├── targets/
-    │       └── ... (other proxy files)
-    └── util.sh
-    └── README.md
+    ./                          # Your project root (e.g., apigee-pubsub-read/)
+    +-- apigee/
+    |   +-- messages/
+    |       +-- apiproxy/       # Contains your Apigee proxy source files
+    |           +-- proxies/
+    |           |   +-- default.xml   # Expected to contain <BasePath>
+    |           +-- policies/
+    |           +-- targets/
+    |           +-- messages.xml    # Your main proxy XML (e.g., messages.xml)
+    +-- util.sh
+    +-- README.md
     ```
-5.  **IAM Permissions**: The user or service account executing `util.sh` needs sufficient permissions in your GCP project (`$PROJECT_ID`) to:
-    * Manage Apigee resources (import/deploy proxies, read environment/envgroup details). Roles like `roles/apigee.admin` are comprehensive.
-    * Manage Pub/Sub resources (create topics/subscriptions, set IAM policies). Roles like `roles/pubsub.admin` work.
-    * Manage IAM Service Accounts (create service accounts, set IAM policies). Roles like `roles/iam.serviceAccountAdmin` and `roles/resourcemanager.projectIamAdmin` (or more granular permissions) are needed.
+5.  **IAM Permissions**: The user or service account executing `util.sh` (or the identity used by `gcloud auth print-access-token`) needs sufficient permissions in your GCP project (`$PROJECT_ID`) to:
+    * **Apigee**:
+        * Import and deploy proxies (e.g., `apigee.developerAdmin`, `apigee.deployer`, or `apigee.admin` for broader access; or granular permissions like `apigee.apis.create`, `apigee.apis.delete`, `apigee.apirevisions.deploy`, `apigee.environments.getDeployments`).
+        * List environment groups and their details to determine hostnames (e.g., `apigee.envgroups.list`, `apigee.envgroups.get` or included in `apigee.reader` / `apigee.admin`).
+    * **Pub/Sub**:
+        * Create and manage topics and subscriptions (e.g., `roles/pubsub.editor` or `roles/pubsub.admin`).
+        * Set IAM policies on subscriptions (included in `roles/pubsub.admin` or via `resourcemanager.projects.setIamPolicy` if setting at project level and filtering down, though the script targets subscription-level binding).
+        * The service account created by the script (`swim-reader`) will be granted `roles/pubsub.subscriber` on the subscription.
+    * **IAM Service Accounts**:
+        * Create service accounts and set IAM policies (e.g., `roles/iam.serviceAccountAdmin` for creating SAs, and `roles/resourcemanager.projectIamAdmin` or appropriate permissions for binding IAM policies for Pub/Sub access).
+    * **Service Control / Service Usage** (Implicit):
+        * Ensure the Apigee API (`apigee.googleapis.com`) and Pub/Sub API (`pubsub.googleapis.com`) are enabled for the project.
 
 ## Environment Variables
 
@@ -89,7 +102,7 @@ The script will output progress information and, upon successful completion, a s
 
 The following variables are defined at the beginning of `util.sh` and can be modified if your naming conventions or proxy structure differ:
 
-* `PROXY_NAME`: The name assigned to the API proxy in Apigee (default: `"apigee-pub-sub-proxy"`).
+* `PROXY_NAME`: The name assigned to the API proxy in Apigee (default: `"messages"`).
 * `PROXY_MAIN_DIR`: The top-level directory containing the `apiproxy` folder (default: `"apigee"`).
 * `PROXY_SOURCE_SUBDIR`: The name of the directory containing the proxy bundle files (default: `"apiproxy"`).
 * `SERVICE_ACCOUNT_NAME`: The name for the Google Cloud Service Account (default: `"swim-reader"`).
@@ -102,6 +115,12 @@ The following variables are defined at the beginning of `util.sh` and can be mod
 * **Permission Errors**: Most issues are related to insufficient IAM permissions for the `gcloud` user/SA running the script. Review the "IAM Permissions" section.
 * **`jq` not found**: Ensure `jq` is installed and in your system's PATH.
 * **Hostname/Basepath Retrieval Issues**:
-    * The script relies on the Apigee environment being attached to an Environment Group with a configured hostname. If the hostname cannot be found, a placeholder will be used in the output.
-    * Basepath retrieval uses `grep` on `apigee/apiproxy/proxies/default.xml`. If your basepath is defined elsewhere or the file doesn't exist, it will output a placeholder.
-* **Proxy Import/Deploy Fails**: Check the `gcloud` output for specific error messages from Apigee. This could be due to issues in the proxy bundle itself.
+    * The script attempts to retrieve a hostname by fetching all environment groups via the Apigee API and using the first hostname of the first listed group. If this hostname is not the correct one for your target environment (`$APIGEE_ENV`), or if the API call fails (e.g., due to permissions or network issues), or if no hostnames are configured, a placeholder will be used. You might need to manually identify the correct hostname.
+    * Basepath retrieval uses `grep` on the `proxies/default.xml` file within your proxy bundle structure. If your basepath is defined elsewhere or the file doesn't exist as expected, it will output a placeholder.
+* **Proxy Import/Deploy Fails**:
+    * Check the script's output for error messages from `curl` or the JSON response from the Apigee API. This could be due to:
+        * Issues with the access token (expired, insufficient scopes).
+        * Problems with the proxy bundle itself (validation errors not caught by `validate=false`).
+        * The service account specified for deployment lacking permissions or not existing.
+        * Network connectivity to `apigee.googleapis.com`.
+    * The script prints the HTTP status code and the full API response body for the import step, which should help diagnose issues.
