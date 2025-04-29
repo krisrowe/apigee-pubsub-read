@@ -2,7 +2,7 @@
 
 This script provides a 100% repeatable automation of the full deployment of a working integration between an Apigee API proxy and a Google Cloud Pub/Sub topic, where a client application is able to make an API call and retrieve the next available message. It handles the creation of all necessary GCP resources for both Apigee and Cloud Pub/Sub, including configuration of a service account with permissions. It even concludes by providing the sample `curl` command for invocation.
 
-This script can be safely run repeatedly to ensure all components are deployed anc configured. This script does NOT provision Apigee in the GCP project specified, so that must be done in advance.
+This script can be safely run repeatedly to ensure all components are deployed and configured. This script does NOT provision Apigee in the GCP project specified, so that must be done in advance.
 
 ## Features
 
