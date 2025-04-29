@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<TargetEndpoint name="default">
+  <Description/>
+  <FaultRules>
+  </FaultRules>
+  <DefaultFaultRule name="DefaultTargetFaultHandler">
+    <Step>
+      <Name>AM-NoMsgHandler</Name>
+    </Step>
+    <AlwaysEnforce>true</AlwaysEnforce>
+  </DefaultFaultRule>
+  <PreFlow name="PreFlow">
+    <Request>
+      <Step>
+        <Name>EV-ReadQueryParams</Name>
+      </Step>
+      <Step>
+        <Name>AM-PreparePubSubPullRequest</Name>
+      </Step>
+    </Request>
+    <Response/>
+  </PreFlow>
+  <PostFlow name="PostFlow">
+    <Request/>
+    <Response>
+      <Step>
+        <Name>EV-ExtractPubSubResponse</Name>
+        <Condition>responseFormat != "raw"</Condition>
+      </Step>
+      <Step>
+        <Name>AM-PrepAck</Name>
+      </Step>
+      <Step>
+        <Name>SC-AckMsg</Name>
+      </Step>
+      <Step>
+        <Name>AM-DecodeBase64</Name>
+        <Condition>responseFormat != "raw"</Condition>
+      </Step>
+    </Response>
+  </PostFlow>
+  <Flows/>
+  <HTTPTargetConnection>
+    <URL>https://pubsub.googleapis.com/v1/projects/api-jam-rowe/subscriptions/swim-api-sub:pull</URL>
+    <Authentication>
+      <GoogleAccessToken>
+        <Scopes>
+          <Scope>https://www.googleapis.com/auth/pubsub</Scope>
+        </Scopes>
+      </GoogleAccessToken>
+    </Authentication>
+    <Properties/>
+  </HTTPTargetConnection>
+</TargetEndpoint>

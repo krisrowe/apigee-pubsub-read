@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AssignMessage async="false" continueOnError="false" enabled="true" name="AM-NoMsgHandler">
+  <DisplayName>No Message Handler</DisplayName>
+  <Set>
+    <Payload contentType="application/json">
+        {
+            "error": "No message.",
+            "detail": "Could not retrieve messages at this time. Please try again later."
+        }
+        </Payload>
+    <StatusCode>200</StatusCode>
+  </Set>
+  <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>
+  <AssignTo createNew="false" transport="http" type="response"/>
+</AssignMessage>

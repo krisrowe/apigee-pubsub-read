@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ExtractVariables async="false" continueOnError="false" enabled="true" name="EV-ExtractPubSubResponse">
+  <DisplayName>Extract PubSub Response Data</DisplayName>
+  <Properties/>
+  <JSONPayload>
+    <Variable name="pubsub.encodedData">
+      <JSONPath>$.receivedMessages[0].message.data</JSONPath>
+    </Variable>
+    <Variable name="pubsub.ackId">
+      <JSONPath>$.receivedMessages[0].ackId</JSONPath>
+    </Variable>
+  </JSONPayload>
+  <Source clearPayload="false">response</Source>
+  <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>
+</ExtractVariables>

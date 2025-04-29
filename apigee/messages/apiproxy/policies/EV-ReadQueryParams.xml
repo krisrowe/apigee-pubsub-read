@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ExtractVariables continueOnError="false" enabled="true" name="EV-ReadQueryParams">
+  <DisplayName>Read Query Params</DisplayName>
+  <Source clearPayload="false">request</Source>
+  <QueryParam name="format">
+    <Pattern ignoreCase="false">{responseFormat}</Pattern>
+  </QueryParam>
+  <QueryParam name="ack">
+    <Pattern ignoreCase="false">{ackMessage}</Pattern>
+  </QueryParam>
+  <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>
+</ExtractVariables>

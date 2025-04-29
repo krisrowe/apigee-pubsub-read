@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<APIProxy revision="1" name="messages">
+  <DisplayName/>
+  <Description/>
+  <CreatedAt>1745945172905</CreatedAt>
+  <LastModifiedAt>1745945202986</LastModifiedAt>
+  <BasePaths>/messages</BasePaths>
+  <Policies>
+    <Policy>AM-PreparePubSubPullRequest</Policy>
+    <Policy>EV-ExtractPubSubResponse</Policy>
+    <Policy>AM-DecodeBase64</Policy>
+    <Policy>EV-ReadQueryParams</Policy>
+    <Policy>AM-PrepAck</Policy>
+    <Policy>SC-AckMsg</Policy>
+    <Policy>AM-NoMsgHandler</Policy>
+  </Policies>
+  <ProxyEndpoints>
+    <ProxyEndpoint>default</ProxyEndpoint>
+  </ProxyEndpoints>
+  <TargetEndpoints>
+    <TargetEndpoint>default</TargetEndpoint>
+  </TargetEndpoints>
+</APIProxy>

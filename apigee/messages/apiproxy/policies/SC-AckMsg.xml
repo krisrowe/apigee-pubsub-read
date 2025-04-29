@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ServiceCallout continueOnError="false" enabled="true" name="SC-AckMsg">
+  <DisplayName>Ack Message</DisplayName>
+  <Request clearPayload="true" variable="pubsubAckRequest"/>
+  <Response>pubsubAckResponse</Response>
+  <HTTPTargetConnection>
+    <URL>https://pubsub.googleapis.com/v1/projects/api-jam-rowe/subscriptions/swim-api-sub:acknowledge</URL>
+    <Authentication>
+      <GoogleAccessToken>
+        <Scopes>
+          <Scope>https://www.googleapis.com/auth/pubsub</Scope>
+        </Scopes>
+      </GoogleAccessToken>
+    </Authentication>
+  </HTTPTargetConnection>
+</ServiceCallout>

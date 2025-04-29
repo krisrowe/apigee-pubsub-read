@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AssignMessage async="false" continueOnError="false" enabled="true" name="AM-PrepAck">
+  <DisplayName>Prepare Ack</DisplayName>
+  <Set>
+    <Payload contentType="application/json">
+        {
+            "ackIds": ["{pubsub.ackId}"]
+        }
+        </Payload>
+    <Verb>POST</Verb>
+  </Set>
+  <IgnoreUnresolvedVariables>false</IgnoreUnresolvedVariables>
+  <AssignTo createNew="true" transport="http" type="request">pubsubAckRequest</AssignTo>
+</AssignMessage>

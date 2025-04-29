@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AssignMessage async="false" continueOnError="false" enabled="true" name="AM-PreparePubSubPullRequest">
+  <DisplayName>Prepare PubSub Pull Request</DisplayName>
+  <Properties/>
+  <Set>
+    <Verb>POST</Verb>
+    <Headers>
+      <Header name="Content-Type">application/json</Header>
+    </Headers>
+    <Payload contentType="application/json">
+            {
+                "returnImmediately": true,
+                "maxMessages": 1
+            }
+        </Payload>
+  </Set>
+  <Remove>
+    <QueryParams>
+      <QueryParam name="format"/>
+      <QueryParam name="ack"/>
+    </QueryParams>
+  </Remove>
+  <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>
+  <AssignTo createNew="false" transport="http" type="request"/>
+</AssignMessage>
