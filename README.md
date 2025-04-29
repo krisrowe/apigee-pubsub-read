@@ -30,24 +30,12 @@ This script can be safely run repeatedly to ensure all components are deployed a
     * Manage IAM Service Accounts.
     * (Optionally) Publish a test message to Pub/Sub.
     * Installation: [Google Cloud SDK Documentation](https://cloud.google.com/sdk/docs/install)
-2.  **`jq`**: A lightweight and flexible command-line JSON processor.
+2. **Apigee X or Hybrid Organization Provisioned**: This script assumes that an Apigee organization (X or Hybrid) is already provisioned in your Google Cloud Project. The script will deploy a proxy to an existing Apigee environment within this organization.
+    * If you need to set up a new Apigee evaluation organization, you can follow the steps in the [Apigee evaluation provisioning wizard documentation](https://cloud.google.com/apigee/docs/api-platform/get-started/eval-orgs).
+3.  **`jq`**: A lightweight and flexible command-line JSON processor.
     * Installation: [jq Official Website](https://stedolan.github.io/jq/download/)
     * Example: `sudo apt-get install jq` (Debian/Ubuntu), `brew install jq` (macOS)
-3.  **`zip` utility**: Commonly pre-installed on most Linux and macOS systems.
-4.  **Project Structure**: The script expects the following directory structure from the root of this repository (where `util.sh` is located):
-    ```
-    ./                          # Your project root (e.g., apigee-pubsub-read/)
-    +-- apigee/
-    |   +-- messages/
-    |       +-- apiproxy/       # Contains your Apigee proxy source files
-    |           +-- proxies/
-    |           |   +-- default.xml   # Expected to contain <BasePath>
-    |           +-- policies/
-    |           +-- targets/
-    |           +-- messages.xml    # Your main proxy XML (e.g., messages.xml)
-    +-- util.sh
-    +-- README.md
-    ```
+4.  **`zip` utility**: Commonly pre-installed on most Linux and macOS systems.
 5.  **IAM Permissions**: The user or service account executing `util.sh` (or the identity used by `gcloud auth print-access-token`) needs sufficient permissions in your GCP project (`$PROJECT_ID`) to:
     * **Apigee**:
         * Import and deploy proxies (e.g., `apigee.developerAdmin`, `apigee.deployer`, or `apigee.admin` for broader access; or granular permissions like `apigee.apis.create`, `apigee.apis.delete`, `apigee.apirevisions.deploy`, `apigee.environments.getDeployments`).
@@ -126,3 +114,20 @@ The following variables are defined at the beginning of `util.sh` and can be mod
         * The service account specified for deployment lacking permissions or not existing.
         * Network connectivity to `apigee.googleapis.com`.
     * The script prints the HTTP status code and the full API response body for the import step, which should help diagnose issues.
+
+## Other Notes
+
+* **Project Structure**: The script expects the following directory structure from the root of this repository (where `util.sh` is located):
+    ```
+    ./                          # Your project root (e.g., apigee-pubsub-read/)
+    +-- apigee/
+    |   +-- messages/
+    |       +-- apiproxy/       # Contains your Apigee proxy source files
+    |           +-- proxies/
+    |           |   +-- default.xml   # Expected to contain <BasePath>
+    |           +-- policies/
+    |           +-- targets/
+    |           +-- messages.xml    # Your main proxy XML (e.g., messages.xml)
+    +-- util.sh
+    +-- README.md
+    ```
